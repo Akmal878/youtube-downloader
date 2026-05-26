@@ -22,7 +22,15 @@ YT_DLP_CMD = f"{sys.executable} -m yt_dlp"
 def get_video_info():
     """Get video information including thumbnail and available formats"""
     try:
-        data = request.json
+        # Handle both JSON and form data
+        data = request.json or request.form
+        if not data:
+            # Try to parse raw body as JSON
+            try:
+                data = json.loads(request.data.decode('utf-8'))
+            except:
+                return jsonify({'error': 'Invalid request format'}), 400
+        
         url = data.get('url', '').strip()
         
         if not url:
@@ -75,7 +83,15 @@ def get_video_info():
 def download_video():
     """Download video with selected quality"""
     try:
-        data = request.json
+        # Handle both JSON and form data
+        data = request.json or request.form
+        if not data:
+            # Try to parse raw body as JSON
+            try:
+                data = json.loads(request.data.decode('utf-8'))
+            except:
+                return jsonify({'error': 'Invalid request format'}), 400
+        
         url = data.get('url', '').strip()
         height = data.get('height', 0)
         
