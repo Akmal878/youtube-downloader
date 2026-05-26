@@ -58,9 +58,10 @@ def get_video_info():
             return jsonify({'error': 'URL is required'}), 400
         
         # Get video info using yt-dlp
-        cmd = f'{YT_DLP_CMD} --js-runtimes node -j --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" "{url}"'
+        # Use comprehensive headers and extractor args to bypass YouTube bot detection
+        cmd = f'{YT_DLP_CMD} --js-runtimes node -j --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --extractor-args "youtube:player_client=web,tv" --socket-timeout 30 "{url}"'
         logger.info(f"Running command: {cmd}")
-        result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, shell=True, timeout=60)
         
         logger.info(f"yt-dlp return code: {result.returncode}")
         logger.info(f"yt-dlp stdout: {result.stdout[:500]}")
@@ -141,12 +142,14 @@ def download_video():
         output_path = str(TEMP_DIR / f'{height}p_%(title)s.%(ext)s')
         
         # Download using yt-dlp with selected format
-        # Use FFmpeg to re-encode audio to AAC for compatibility
+        # Use comprehensive headers and extractor args to bypass YouTube bot detection
         cmd = [
             sys.executable,
             '-m', 'yt_dlp',
             '--js-runtimes', 'node',
             '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            '--extractor-args', 'youtube:player_client=web,tv',
+            '--socket-timeout', '30',
             '--no-cache-dir',
             '-f', format_str,
             '-o', output_path,
@@ -155,10 +158,15 @@ def download_video():
             url
         ]
         
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        logger.info(f"Download command: {' '.join(cmd)}")
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        
+        logger.info(f"Download return code: {result.returncode}")
+        logger.info(f"Download stderr: {result.stderr[:200] if result.stderr else 'None'}")
         
         if result.returncode != 0:
             error_msg = result.stderr if result.stderr else 'Unknown error'
+            logger.error(f"Download failed: {error_msg}")
             return jsonify({'error': f'Download failed: {error_msg}'}), 400
         
         # Find the downloaded file
