@@ -59,12 +59,23 @@ def get_video_info():
         
         # Get video info using yt-dlp
         cmd = f'{YT_DLP_CMD} -j "{url}"'
+        logger.info(f"Running command: {cmd}")
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
         
-        if result.returncode != 0:
-            return jsonify({'error': 'Failed to fetch video info. Invalid URL?'}), 400
+        logger.info(f"yt-dlp return code: {result.returncode}")
+        logger.info(f"yt-dlp stdout: {result.stdout[:500]}")
+        logger.info(f"yt-dlp stderr: {result.stderr[:500]}")
         
-        video_data = json.loads(result.stdout)
+        if result.returncode != 0:
+            error_msg = result.stderr or result.stdout or "Unknown error"
+            logger.error(f"yt-dlp failed: {error_msg}")
+            return jsonify({'error': f'Failed to fetch video info: {error_msg}'}), 400
+        
+        try:
+            video_data = json.loads(result.stdout)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parse error: {e}, stdout: {result.stdout}")
+            return jsonify({'error': 'Invalid video data received'}), 400
         
         # Extract all unique heights (144p and higher only)
         formats_dict = {}
