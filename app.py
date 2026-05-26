@@ -58,7 +58,7 @@ def get_video_info():
             return jsonify({'error': 'URL is required'}), 400
         
         # Get video info using yt-dlp
-        cmd = f'{YT_DLP_CMD} --js-runtimes node -j "{url}"'
+        cmd = f'{YT_DLP_CMD} --js-runtimes node -j --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" "{url}"'
         logger.info(f"Running command: {cmd}")
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
         
@@ -146,6 +146,7 @@ def download_video():
             sys.executable,
             '-m', 'yt_dlp',
             '--js-runtimes', 'node',
+            '--user-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             '--no-cache-dir',
             '-f', format_str,
             '-o', output_path,
