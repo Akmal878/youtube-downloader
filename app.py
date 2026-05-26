@@ -23,36 +23,33 @@ TEMP_DIR.mkdir(exist_ok=True)
 # Use yt-dlp as an installed module (works on both local and Render)
 YT_DLP_CMD = f"{sys.executable} -m yt_dlp"
 
-@app.route('/api/test', methods=['GET', 'POST'])
-def test_endpoint():
-    """Test endpoint to debug request issues"""
-    logger.info(f"Request method: {request.method}")
-    logger.info(f"Content-Type: {request.content_type}")
-    logger.info(f"Headers: {dict(request.headers)}")
-    logger.info(f"request.json: {request.json}")
-    logger.info(f"request.data: {request.data}")
-    return jsonify({
-        'status': 'ok',
-        'method': request.method,
-        'content_type': request.content_type,
-        'json_received': request.json is not None
-    })
+def get_request_data():
+    """Safely get JSON data from request, handling Render proxy issues"""
+    try:
+        # Try standard request.json first
+        if request.json:
+            return request.json
+    except:
+        pass
+    
+    # If that fails, try parsing raw body as JSON
+    try:
+        if request.data:
+            return json.loads(request.data.decode('utf-8'))
+    except:
+        pass
+    
+    return None
 
 @app.route('/api/video-info', methods=['POST'])
 def get_video_info():
     """Get video information including thumbnail and available formats"""
     try:
-        logger.info(f"Received request - Content-Type: {request.content_type}")
-        
-        # Parse JSON from request
-        if request.content_type and 'application/json' in request.content_type:
-            data = request.get_json(force=True)
-        else:
-            data = request.json
+        data = get_request_data()
         
         if not data:
-            logger.error("No data received in request")
-            return jsonify({'error': 'No data received'}), 400
+            logger.error("No JSON data in request")
+            return jsonify({'error': 'Invalid JSON format'}), 400
         
         url = data.get('url', '').strip()
         logger.info(f"Processing URL: {url}")
@@ -107,17 +104,11 @@ def get_video_info():
 def download_video():
     """Download video with selected quality"""
     try:
-        logger.info(f"Download request - Content-Type: {request.content_type}")
-        
-        # Parse JSON from request
-        if request.content_type and 'application/json' in request.content_type:
-            data = request.get_json(force=True)
-        else:
-            data = request.json
+        data = get_request_data()
         
         if not data:
-            logger.error("No data received in download request")
-            return jsonify({'error': 'No data received'}), 400
+            logger.error("No JSON data in download request")
+            return jsonify({'error': 'Invalid JSON format'}), 400
         
         url = data.get('url', '').strip()
         height = data.get('height', 0)
