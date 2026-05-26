@@ -13,6 +13,9 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Get proxy from environment (optional)
+PROXY = os.environ.get('YOUTUBE_PROXY', '')  # Format: http://ip:port or socks5://ip:port
+
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
@@ -59,7 +62,12 @@ def get_video_info():
         
         # Get video info using yt-dlp
         # Use comprehensive headers and extractor args to bypass YouTube bot detection
-        cmd = f'{YT_DLP_CMD} --js-runtimes node -j --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --extractor-args "youtube:player_client=web,tv" --socket-timeout 30 "{url}"'
+        cmd = f'{YT_DLP_CMD} --js-runtimes node -j --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" --extractor-args "youtube:player_client=web,tv" --socket-timeout 30'
+        
+        if PROXY:
+            cmd += f' --proxy "{PROXY}"'
+        
+        cmd += f' "{url}"'
         logger.info(f"Running command: {cmd}")
         result = subprocess.run(cmd, capture_output=True, text=True, shell=True, timeout=60)
         
@@ -155,8 +163,12 @@ def download_video():
             '-o', output_path,
             '--merge-output-format', 'mp4',
             '--postprocessor-args', '-c:a aac',
-            url
         ]
+        
+        if PROXY:
+            cmd.extend(['--proxy', PROXY])
+        
+        cmd.append(url)
         
         logger.info(f"Download command: {' '.join(cmd)}")
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
