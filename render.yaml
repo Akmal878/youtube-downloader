@@ -3,7 +3,7 @@ services:
     name: youtube-downloader
     env: python
     plan: free
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "apt-get update && apt-get install -y nodejs npm && pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
