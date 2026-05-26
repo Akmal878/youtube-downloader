@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+/yt_dlp_downloads/
+*.mp4
+.idea/
+.vscode/

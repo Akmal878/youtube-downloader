@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Video Downloader</h1>
+            <p>Download videos in your preferred quality with audio</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="content-wrapper">
+                <!-- Video Search -->
+                <section class="search-section">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="urlInput" 
+                            class="url-input" 
+                            placeholder="Enter video URL here..."
+                            autocomplete="off"
+                        >
+                        <button id="fetchBtn" class="btn-fetch">
+                            Fetch Video
+                        </button>
+                    </div>
+                    <div id="errorMessage" class="error-message hidden"></div>
+                </section>
+
+                <!-- Video Display -->
+                <section id="videoContent" class="video-content hidden">
+                    <div class="video-container">
+                        <!-- Video Info -->
+                        <div class="video-header">
+                            <img id="thumbnail" src="" alt="Video Thumbnail" class="video-thumbnail">
+                            <div class="video-details">
+                                <h2 id="videoTitle">Video Title</h2>
+                                <div class="info-row">
+                                    <span class="label">Channel:</span>
+                                    <span id="uploader" class="value">Unknown</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="label">Duration:</span>
+                                    <span id="duration" class="value">Unknown</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quality Selection -->
+                        <div class="quality-selector">
+                            <h3>Select Quality</h3>
+                            <div id="qualityOptions" class="quality-buttons">
+                                <!-- Quality options will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Download Section -->
+                        <div class="download-action">
+                            <button id="downloadBtn" class="btn-download">
+                                Download
+                            </button>
+                            <div id="downloadStatus" class="status-message hidden"></div>
+                            <div id="progressContainer" class="progress-container hidden">
+                                <div class="progress-bar">
+                                    <div id="progressFill" class="progress-fill"></div>
+                                </div>
+                                <div class="progress-text">
+                                    <span id="progressPercent">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Empty State -->
+                <section id="emptyState" class="empty-state">
+                    <div class="empty-content">
+                        <h2>No video selected</h2>
+                        <p>Paste a video URL above to get started</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Video will be saved to your default browser downloads folder</p>
+        </footer>
+    </div>
+
+    <script src="static/script.js"></script>
+</body>
+</html>
