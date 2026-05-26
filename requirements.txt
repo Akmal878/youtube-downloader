@@ -5,7 +5,7 @@ yt-dlp==2026.03.17
 brotli==1.1.0
 certifi==2024.2.2
 mutagen==1.46.0
-pycryptodomex==4.18.0
+pycryptodomex==3.23.0
 requests>=2.32.2
 urllib3>=2.0.2
 websockets>=13.0
